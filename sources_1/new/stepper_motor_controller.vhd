@@ -7,38 +7,60 @@ entity stepper_motor_controller is
     (
         clk: in std_logic;
         dir: in std_logic; -- Direction
-        JA: out std_logic_vector(3 downto 0); -- Outputs to coils on stepper motor
-        dir_out: out std_logic
+        number_of_steps: in std_logic_vector(7 downto 0);
+        en: in std_logic;
+        working: out std_logic := '0';
+        motor: out std_logic_vector(3 downto 0) -- Outputs to coils on left stepper motor        
     );
 end stepper_motor_controller;
 
 architecture smc_arch of stepper_motor_controller is
 
-    constant max_count: integer := 160000*2;
+    constant max_count: integer := 160000*2;    
     constant control_level: integer := 79999*2+1;
     signal count: integer := 0;
+    
     signal divided_clk: std_logic := '0';
-
+    
     signal step: integer := 0;
     signal step_next: integer;
-    signal test: std_logic;
-
+    
+    signal change_pos: boolean := false;
+    signal step_count: unsigned(7 downto 0);
+    
+    signal en_last: std_logic := '0';
+    
 begin
 
-    counting: process (clk)
-    begin
+    counting_left: process (en_last, clk, en, number_of_steps, step_count, count)
+    begin        
+        if (en /= en_last) then
+            working <= '1';
+            change_pos <= true;
+            step_count <= unsigned(number_of_steps);            
+            en_last <= en;
+        end if;
+        
         if (rising_edge(clk)) then
-            if (count < max_count) then
-                count <= count + 1;
-            else
-                count <= 0;
-            end if;
+            if (change_pos) then
+                if (step_count > 0) then
+                    if (count < max_count) then
+                        count <= count + 1;
+                    else
+                        count <= 0;
+                        step_count <= step_count - 1;
+                    end if;                    
+                else
+                    change_pos <= false;
+                    working <= '0';
+                end if;                
+            end if;            
         end if;
     end process;
 
-    pulsing: process (clk)
+    generate_clk: process (change_pos, count)
     begin
-        if (rising_edge(clk)) then
+        if (change_pos) then
             if (control_level > count) then
                 divided_clk <= '0';
             else
@@ -58,30 +80,30 @@ begin
     begin    
         case (step) is
             when 0 =>
-                JA(0) <= '1';
-                JA(1) <= '0';
-                JA(2) <= '0';
-                JA(3) <= '1';
+                motor(0) <= '1';
+                motor(1) <= '0';
+                motor(2) <= '0';
+                motor(3) <= '1';
             when 1 =>
-                JA(0) <= '1';
-                JA(1) <= '1';
-                JA(2) <= '0';
-                JA(3) <= '0';
+                motor(0) <= '1';
+                motor(1) <= '1';
+                motor(2) <= '0';
+                motor(3) <= '0';
             when 2 =>
-                JA(0) <= '0';
-                JA(1) <= '1';
-                JA(2) <= '1';
-                JA(3) <= '0';
+                motor(0) <= '0';
+                motor(1) <= '1';
+                motor(2) <= '1';
+                motor(3) <= '0';
             when 3 =>
-                JA(0) <= '0';
-                JA(1) <= '0';
-                JA(2) <= '1';
-                JA(3) <= '1';
+                motor(0) <= '0';
+                motor(1) <= '0';
+                motor(2) <= '1';
+                motor(3) <= '1';
             when others =>
-                JA(0) <= '0';
-                JA(1) <= '0';
-                JA(2) <= '0';
-                JA(3) <= '0';                                                                                                  
+                motor(0) <= '0';
+                motor(1) <= '0';
+                motor(2) <= '0';
+                motor(3) <= '0';                                                                                                  
         end case;
             
         if (dir = '0') then
@@ -99,5 +121,4 @@ begin
             
         end if;                 
     end process;
-    dir_out <= dir;
 end smc_arch;

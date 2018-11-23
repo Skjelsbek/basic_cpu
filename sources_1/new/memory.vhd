@@ -21,36 +21,38 @@ end memory;
 architecture mem_arch of memory is
     
     -- Intructions
-    constant LDRM: unsigned := "10100000"; -- A0H
-    constant LDMR: unsigned := "00001010"; -- 0AH
-    constant INCR: unsigned := "00000000"; -- 00H    
-    constant TOGR: unsigned := "10000000"; -- 80H
-    constant HALT: unsigned := "11111111"; -- FFH
-    constant STF : unsigned := "00000001"; -- 01H 
-    constant STB : unsigned := "00000010"; -- 02H
-    constant PUP : unsigned := "00000011"; -- 03H
-    constant PDN : unsigned := "00000100"; -- 04H
+    constant LDRM: std_logic_vector := "10100000"; -- A0H
+    constant LDMR: std_logic_vector := "00001010"; -- 0AH
+    constant INCR: std_logic_vector := "00000000"; -- 00H    
+    constant TOGR: std_logic_vector := "10000000"; -- 80H
+    constant HALT: std_logic_vector := "11111111"; -- FFH
+    constant STF : std_logic_vector := "00000001"; -- 01H 
+    constant STB : std_logic_vector := "00000010"; -- 02H
+    constant PUP : std_logic_vector := "00000011"; -- 03H
+    constant PDN : std_logic_vector := "00000100"; -- 04H
+    constant STR : std_logic_vector := "00000101"; -- 05H 
+    constant STL : std_logic_vector := "00000110"; -- 06H
     
     -- Memory structure
     type reg_arr is array(2**ABW downto 0) of std_logic_vector(BW - 1 downto 0);        
     signal mem: reg_arr :=
         (   
-            0 => std_logic_vector(HALT),
-            1 => std_logic_vector(LDRM),
-            2 => "10000001",            
-            3 => std_logic_vector(INCR),
-            4 => std_logic_vector(TOGR),
-            5 => std_logic_vector(LDMR),
-            7 => std_logic_vector(STF), 
-            8 => std_logic_vector(STB),
-            9 => std_logic_vector(PDN),
-            10 => std_logic_vector(PUP),
-            11 => std_logic_vector(PDN),          
-            others => std_logic_vector(HALT) 
+            0 => PUP,
+            1 => STF,
+            2 => "00001010",
+            3 => PDN,
+            4 => STR,
+            5 => "00001010", 
+            6 => STB,
+            7 => "00001010",  
+            8 => STL,
+            9 => "00001010",
+            10 => PUP,       
+            others => HALT 
         );   
         
 begin            
-    process (rst, we, ab, ob)
+    process (rst, we, ab, ob, mem)
     begin
         if (rst = '1') then            
             mem <= 

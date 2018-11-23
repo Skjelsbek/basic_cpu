@@ -10,8 +10,8 @@ architecture Behavioral of computer_tb is
     -- signals
     signal clk : std_logic := '0';
     signal rst : std_logic := '0';
-    signal JA: std_logic_vector(3 downto 0);
-    signal dir_out: std_logic;
+    signal left_motor_out: std_logic_vector(3 downto 0);
+    signal right_motor_out: std_logic_vector(3 downto 0);
     signal servo_out: std_logic;
     
     -- Clock period definitions
@@ -23,8 +23,8 @@ begin
         (
             clk => clk,
             rst => rst,
-            JA => JA,
-            dir_out => dir_out,
+            left_motor_out => left_motor_out,
+            right_motor_out => right_motor_out, 
             servo_out => servo_out
         );    
     

@@ -30,7 +30,7 @@ begin
         end if;
     end process;
     
-    process(en, inc, tog, db) -- state register code section
+    process(value, en, inc, tog, db) -- state register code section
     begin	   
 	   if (en = '1') then     
 	       next_val <= db;

@@ -17,6 +17,8 @@ end program_counter;
 
 architecture pc_arch of program_counter is
 
+
+
 begin
     process(rst, in_val)    -- state register code section
     begin

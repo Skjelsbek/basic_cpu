@@ -15,8 +15,7 @@ entity cpu is
 		we: out std_logic; -- write enable
 		ab: out std_logic_vector(ABW - 1 downto 0); -- address bus
 		ob: out std_logic_vector(BW - 1 downto 0);  -- output bus
-		dir: inout std_logic;
-		servo_dir: out std_logic
+		actuator_ins: out std_logic_vector(BW - 1 downto 0)
 	);
 end cpu;
 
@@ -47,8 +46,7 @@ begin
             reg_en => reg_en,
             reg_inc => reg_inc,
             reg_tog => reg_tog,
-            dir => dir,
-            servo_dir => servo_dir
+            actuator_ins => actuator_ins
         );
         
     c_ir: entity work.instruction_register(ir_arch)
